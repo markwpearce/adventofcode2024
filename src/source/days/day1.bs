@@ -1,0 +1,97 @@
+
+namespace day1
+
+    function getDataLine(inputLine as string) as integer[]
+        parts as string[] = inputLine.Tokenize(" ")
+        result as integer[] = []
+        for each part in parts
+            if part.Len() > 0
+                result.push(part.ToInt())
+            end if
+        end for
+        return result
+    end function
+
+
+    function getLists(fileName as string) as integer[][]
+        lines = files.getInputLines(fileName)
+        list0 as integer[] = []
+        list1 as integer[] = []
+        i = 0
+        for each line in lines
+            if line.Trim() = ""
+                continue for
+            end if
+            nums = getDataLine(line)
+
+            if nums.count() = 2
+                list0.Push(nums[0])
+                list1.Push(nums[1])
+            else
+                logger.error([`Enable to parse line`, i, line])
+            end if
+            i++
+        end for
+        return [list0, list1]
+    end function
+
+    function part1(fileName as string) as integer
+        result = 0
+        lists = getLists(fileName)
+        sorted0 = lists[0]
+        sorted0.Sort()
+        sorted1 = lists[1]
+        sorted1.Sort()
+
+        i = 0
+        for i = 0 to sorted0.count() - 1
+            result += abs(sorted0[i] - sorted1[i])
+        end for
+
+        return result
+    end function
+
+
+    function part2(fileName as string) as integer
+        result = 0
+        lists = getLists(fileName)
+
+        sorted0 = lists[0]
+        sorted0.Sort()
+        sorted1 = lists[1]
+        sorted1.Sort()
+
+        i = 0
+        searchIndex = 0
+        alreadyFound = {}
+        for i = 0 to sorted0.count() - 1
+            target = sorted0[i]
+
+            if invalid <> alreadyFound[target.toStr()]
+                countFound = alreadyFound[target.toStr()]
+                logger.log([target, "found", countFound])
+                result += target * countFound
+                continue for
+            end if
+
+            countFound = 0
+            while searchIndex < sorted1.count() - 1
+                if sorted1[searchIndex] < target
+                    searchIndex++
+                else if sorted1[searchIndex] = target
+                    searchIndex++
+                    countFound++
+                else
+                    exit while
+                end if
+            end while
+            logger.log([target, "found", countFound])
+            alreadyFound[target.toStr()] = countFound
+            result += target * countFound
+        end for
+
+
+        return result
+    end function
+
+end namespace

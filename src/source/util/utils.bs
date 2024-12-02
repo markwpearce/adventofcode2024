@@ -1,0 +1,11 @@
+
+
+function min(x as float, y as float) as float
+    if x < y
+        return x
+    end if
+    return y
+end function
+
+
+

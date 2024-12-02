@@ -1,0 +1,15 @@
+namespace files
+    function getInputLines(fileName as string) as string[]
+        fs = CreateObject("roFileSystem")
+        lines as string[] = []
+        path = `pkg:/input/${fileName}`
+        if fs.Exists(path)
+            fileText = ReadAsciiFile(path)
+            lines = fileText.Split(Chr(10))
+        else
+            logger.error([`No such file`, path])
+        end if
+        return lines
+    end function
+
+end namespace

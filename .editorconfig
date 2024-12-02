@@ -1,0 +1,31 @@
+[*.brs]
+indent_style = space
+indent_size = 4
+
+[*.bs]
+indent_style = space
+indent_size = 4
+
+[*.json]
+indent_style = space
+indent_size = 4
+
+[*.js]
+indent_style = space
+indent_size = 4
+
+[*.mjs]
+indent_style = space
+indent_size = 4
+
+[*.ts]
+indent_style = space
+indent_size = 4
+
+[*.yml]
+indent_style = space
+indent_size = 4
+
+[*.xml]
+indent_style = space
+indent_size = 4

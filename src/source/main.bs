@@ -1,0 +1,18 @@
+sub main(args as roAssociativeArray)
+    m.verbose = false
+    m.timing = true
+
+    timeSpan as roTimeSpan = invalid
+
+    if m.timing
+        timeSpan = CreateObject("roTimeSpan")
+    end if
+
+    result = day1.part2("01.txt")
+    print result
+
+    if m.timing
+        print `Total Time: ${timeSpan.TotalMilliseconds()}ms`
+    end if
+
+end sub

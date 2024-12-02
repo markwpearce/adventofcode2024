@@ -1,0 +1,72 @@
+namespace logger
+
+    function getLogString(messageArr as dynamic, deep = false, byLine = false) as string
+        strings = []
+        if GetInterface(messageArr, "iftoStr") <> invalid
+            return messageArr.toStr()
+        else if "roAssociativeArray" = type(messageArr)
+            strings.push("{")
+            i = 0
+            for each item in messageArr
+                strings.push(item + ":")
+                value = getLogString(messageArr[item], true)
+                if i < messageArr.count() - 1
+                    value += ","
+                end if
+                strings.push(value)
+                i++
+            end for
+            strings.push("}")
+        else if "roArray" = type(messageArr)
+            if deep
+                strings.push("[")
+            end if
+            i = 0
+            for each item in messageArr
+                value = getLogString(getLogString(item, true))
+                if i < messageArr.count() - 1 and deep
+                    value += ","
+                end if
+                strings.push(value)
+                i++
+            end for
+            if deep
+                strings.push("]")
+            end if
+        else
+            ? "Log error"; messageArr
+        end if
+        sep = " "
+        if byLine and not deep
+            sep = "|"
+        end if
+        return strings.join(sep)
+    end function
+
+    sub log(messageArr as roArray, byLine = false)
+        if invalid <> m.verbose and m.verbose
+            logStr = getLogString(messageArr, false, byLine)
+            if byLine
+                for each line in logStr.split("|")
+                    print line
+                end for
+            else
+                print logStr
+            end if
+        end if
+    end sub
+
+    sub error(messageArr as roArray, byLine = false)
+        messageArr.Unshift("ERROR:")
+        logStr = getLogString(messageArr, false, byLine)
+        if byLine
+            for each line in logStr.split("|")
+                print line
+            end for
+        else
+            print logStr
+        end if
+    end sub
+
+end namespace
+

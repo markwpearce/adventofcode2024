@@ -1,0 +1,12 @@
+{
+    "rootDir": "src",
+    "files": [
+      "**/*"
+    ],
+    "sourceMap": true,
+    "stagingDir": "build",
+    "retainStagingDir": true,
+    "plugins": [
+        "@rokucommunity/bslint"
+      ]
+  }

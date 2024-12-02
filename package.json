@@ -1,0 +1,19 @@
+{
+    "name": "adventofcode2024",
+    "version": "1.0.0",
+    "description": "Advent of Code 2024 in Brighterscript",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "npx bsc",
+        "clean": "rm -rf build && rm -rf out",
+        "cli": "npm run build && npx brs-cli ./out/adventofcode2024.zip"
+    },
+    "author": "Mark Pearce <markwpearce@gmail.com>",
+    "license": "ISC",
+    "dependencies": {
+        "@rokucommunity/bslint": "^1.0.0-alpha.41",
+        "brighterscript": "^1.0.0-alpha.41",
+        "brs-engine": "^1.7.2"
+    }
+}

@@ -1,18 +1,5 @@
 
 namespace day1
-
-    function getDataLine(inputLine as string) as integer[]
-        parts as string[] = inputLine.Tokenize(" ")
-        result as integer[] = []
-        for each part in parts
-            if part.Len() > 0
-                result.push(part.ToInt())
-            end if
-        end for
-        return result
-    end function
-
-
     function getLists(fileName as string) as integer[][]
         lines = files.getInputLines(fileName)
         list0 as integer[] = []
@@ -22,7 +9,7 @@ namespace day1
             if line.Trim() = ""
                 continue for
             end if
-            nums = getDataLine(line)
+            nums = files.getSpaceSeparatedInts(line)
 
             if nums.count() = 2
                 list0.Push(nums[0])

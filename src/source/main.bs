@@ -1,5 +1,5 @@
 sub main(args as roAssociativeArray)
-    m.verbose = false
+    m.verbose = true
     m.timing = true
 
     timeSpan as roTimeSpan = invalid
@@ -8,7 +8,7 @@ sub main(args as roAssociativeArray)
         timeSpan = CreateObject("roTimeSpan")
     end if
 
-    result = day1.part2("01.txt")
+    result = day2.part2("02.txt")
     print result
 
     if m.timing

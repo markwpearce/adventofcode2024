@@ -12,4 +12,16 @@ namespace files
         return lines
     end function
 
+    function getSpaceSeparatedInts(inputLine as string) as integer[]
+        parts as string[] = inputLine.Tokenize(" ")
+        result as integer[] = []
+        for each part in parts
+            if part.Len() > 0
+                result.push(part.ToInt())
+            end if
+        end for
+        return result
+    end function
+
+
 end namespace

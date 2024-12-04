@@ -8,7 +8,7 @@ sub main(args as roAssociativeArray)
         timeSpan = CreateObject("roTimeSpan")
     end if
 
-    result = day3.part2("03.txt")
+    result = day4.part2("04.txt")
     print result
 
     if m.timing

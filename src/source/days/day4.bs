@@ -1,0 +1,102 @@
+namespace day4
+
+    function checkWordInGrid(grid as string[][], word as string, row as integer, col as integer, deltaRow as integer, deltaCol as integer) as boolean
+        wordLength = word.Len()
+
+        gridWidth = grid[0].count()
+        gridHeight = grid.count()
+
+        endRow = row + (wordLength - 1) * deltaRow
+        endCol = col + (wordLength - 1) * deltaCol
+
+        if row < 0 or row >= gridHeight or col < 0 or col >= gridWidth
+            return false
+        end if
+
+        if endRow < 0 or endRow >= gridHeight or endCol < 0 or endCol >= gridWidth
+            return false
+        end if
+        letters = word.split("")
+        for i = 0 to wordLength - 1
+            lookRow = row + deltaRow * i
+            lookCol = col + deltaCol * i
+
+            if grid[lookRow][lookCol] <> letters[i]
+                return false
+            end if
+        end for
+        logger.log(["found at", row, col, deltaRow, deltaCol])
+        return true
+    end function
+
+
+    function searchForWord(grid as string[][], word) as integer
+        foundCount = 0
+        rowDeltas = [-1, 0, 1]
+        colDeltas = [-1, 0, 1]
+
+        for row = 0 to grid.count() - 1
+            for col = 0 to grid[row].count() - 1
+                for each deltaRow in rowDeltas
+                    for each deltaCol in colDeltas
+                        if deltaCol <> 0 or deltaRow <> 0
+                            if checkWordInGrid(grid, word, row, col, deltaRow, deltaCol)
+                                foundCount++
+                            end if
+                        end if
+                    end for
+                end for
+            end for
+        end for
+        return foundCount
+    end function
+
+
+    function part1(fileName as string) as integer
+        result = 0
+
+        input = files.getInputLines(fileName)
+        grid = files.getCharacterGrid(input)
+        result = searchForWord(grid, "XMAS")
+
+        return result
+    end function
+
+    function searchForWordCross(grid as string[][], word) as integer
+        foundCount = 0
+        for row = 0 to grid.count() - 1
+            for col = 0 to grid[row].count() - 1
+                foundSE = checkWordInGrid(grid, word, row, col, 1, 1)
+                foundSW = checkWordInGrid(grid, word, row, col + 2, 1, -1)
+
+                foundNE = checkWordInGrid(grid, word, row + 2, col, -1, 1)
+                foundNW = checkWordInGrid(grid, word, row + 2, col + 2, -1, -1)
+                if foundSE and foundSW
+                    logger.log(["SE/SW", row, col])
+                    foundCount++
+                else if foundSE and foundNE
+                    logger.log(["SE/NE", row, col])
+                    foundCount++
+                else if foundSW and foundNW
+                    logger.log(["SW/NW", row, col])
+                    foundCount++
+                else if foundNE and foundNW
+                    logger.log(["NE/NW", row, col])
+                    foundCount++
+                end if
+            end for
+        end for
+        return foundCount
+    end function
+
+    function part2(fileName as string) as integer
+        result = 0
+
+        input = files.getInputLines(fileName)
+        grid = files.getCharacterGrid(input)
+        result = searchForWordCross(grid, "MAS")
+
+        return result
+    end function
+
+end namespace

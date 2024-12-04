@@ -24,4 +24,12 @@ namespace files
     end function
 
 
+    function getCharacterGrid(inputLines as string[]) as string[][]
+        grid = []
+        for each line in inputLines
+            grid.push(line.Split(""))
+        end for
+        return grid
+    end function
+
 end namespace

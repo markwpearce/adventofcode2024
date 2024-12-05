@@ -1,0 +1,136 @@
+namespace day5
+
+
+    function getQueueData(inputLines as string[]) as roAssociativeArray
+        queueData = {}
+        for each line in inputLines
+            pages = line.split("|")
+            if pages.count() = 2
+                pageKey = pages[0]
+                if invalid = queueData[pageKey]
+                    queueData[pageKey] = {}
+                end if
+                aa = queueData[pageKey]
+                aa[pages[1]] = true
+            end if
+        end for
+        return queueData
+    end function
+
+    function getPrintQueues(inputLines as string[]) as string[][]
+        printQueues as string[][] = []
+        for each line in inputLines
+            pages = line.split(",")
+            if pages.count() > 1
+                printQueues.push(pages)
+            end if
+        end for
+        return printQueues
+    end function
+
+
+    function testLine(qData as roAssociativeArray, printQueue as string[]) as boolean
+        size = printQueue.count()
+        for i = 0 to size - 1
+            pageKey = printQueue[i]
+            pageQueue as roAssociativeArray = qData[pageKey]
+            if invalid = pageQueue
+                continue for
+            end if
+            for j = 0 to i - 1
+                if pageQueue.DoesExist(printQueue[j])
+                    return false
+                end if
+            end for
+
+        end for
+
+        return true
+    end function
+
+
+    function getMiddleAsInt(array as string[]) as integer
+        middleIndex = cint((array.count() - 1) / 2)
+        middle = array[middleIndex].ToInt()
+        return middle
+    end function
+
+
+    function part1(fileName as string) as integer
+        result = 0
+        input = files.getInputLines(fileName)
+
+        queueData = getQueueData(input)
+        printQueues = getPrintQueues(input)
+
+        logger.log([queueData])
+        logger.log([printQueues])
+
+        for each printQ in printQueues
+            if testLine(queueData, printQ)
+                middle = getMiddleAsInt(printQ)
+                logger.log(["Success for", printQ, "middle=", middle])
+                result += middle
+            end if
+        end for
+
+        return result
+    end function
+
+
+    function part2(fileName as string) as integer
+        result = 0
+        input = files.getInputLines(fileName)
+
+        queueData = getQueueData(input)
+        printQueues = getPrintQueues(input)
+
+        logger.log([queueData])
+        logger.log([printQueues])
+
+        for each printQ in printQueues
+            if not testLine(queueData, printQ)
+                newQ as string[] = []
+                logger.log(["fixing", printQ])
+
+                for each page in printQ
+                    pageData = queueData[page]
+                    logger.log([page, pageData, newQ])
+                    if invalid = pageData
+                        newQ.push(page)
+                    else
+                        if newQ.count() = 0
+                            newQ.push(page)
+                        else
+                            inserted = false
+                            for i = 0 to newQ.count() - 1
+                                if pageData[newQ[i]]
+                                    ' this page needs to come before
+                                    editedQ = newQ.Slice(0, i)
+                                    logger.log([1, editedQ])
+                                    editedQ.push(page)
+                                    logger.log([2, editedQ])
+                                    editedQ.Append(newQ.Slice(i))
+                                    logger.log([3, editedQ])
+                                    newQ = editedQ
+                                    inserted = true
+                                    exit for
+                                end if
+
+                            end for
+                            if not inserted
+                                newQ.push(page)
+                            end if
+                        end if
+                    end if
+                end for
+                middle = getMiddleAsInt(newQ)
+                logger.log(["fixed", printQ, "->", newQ, "middle=", middle])
+                result += middle
+            end if
+        end for
+
+        return result
+    end function
+
+end namespace

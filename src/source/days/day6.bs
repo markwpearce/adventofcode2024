@@ -1,0 +1,266 @@
+namespace day6
+
+    enum Direction
+        Up = "^"
+        Right = ">"
+        Left = "<"
+        Down = "v"
+    end enum
+
+    interface PathItem
+        pos as integer[]
+        dir as Direction
+    end interface
+
+    class MapData
+        map as string[][]
+        currentPos as integer[]
+        dir as Direction
+
+        visited as roAssociativeArray = {}
+        path as PathItem[] = []
+
+        cache = {}
+
+        sub new(currentPos as integer[], dir as Direction, map as string[][])
+            m.currentPos = currentPos
+            m.dir = dir
+            m.map = map
+            m.addVisit()
+        end sub
+
+
+        function move(addVisit = true) as boolean
+            nextPos = m.getNextPosition()
+            if m.isNextOffMap(nextPos)
+                return true
+            end if
+            m.currentPos = nextPos
+            if m.isCurrentDupe()
+                return false
+            end if
+            if addVisit
+                m.addVisit()
+            end if
+            return false
+        end function
+
+
+
+        function isNextOffMap(nextPos as integer[]) as boolean
+            if nextPos[0] < 0 or nextPos[0] >= m.map.Count() or nextPos[1] < 0 or nextPos[1] >= m.map[0].Count()
+                return true
+            end if
+            return false
+        end function
+
+        function getNextPosition() as integer[]
+            m.dir = m.getNextDirection()
+            delta = m.getDelta()
+            nextPos = [m.currentPos[0] + delta[0], m.currentPos[1] + delta[1]]
+
+            return nextPos
+        end function
+
+        function getNextDirection(startDir = m.dir) as Direction
+            nextDir = startDir
+
+            gotNextDir = false
+
+            while not gotNextDir
+                delta = m.getDelta(nextDir)
+                nextPos = [m.currentPos[0] + delta[0], m.currentPos[1] + delta[1]]
+                if m.isNextOffMap(nextPos) or m.map[nextPos[0]][nextPos[1]] <> "#"
+                    gotNextDir = true
+                    exit while
+                end if
+                nextDir = m.iterateDir(nextDir)
+            end while
+            return nextDir
+        end function
+
+        function iterateDir(dir as Direction) as Direction
+            nextDir as Direction = Direction.Up
+            if dir = Direction.Up
+                nextDir = Direction.Right
+            else if dir = Direction.Right
+                nextDir = Direction.Down
+            else if dir = Direction.Down
+                nextDir = Direction.Left
+            else
+                nextDir = Direction.up
+            end if
+            return nextDir
+        end function
+
+
+        function getDelta(dir = m.dir) as integer[]
+            if dir = Direction.Up
+                return [-1, 0]
+            else if dir = Direction.Right
+                return [0, 1]
+            else if dir = Direction.Down
+                return [1, 0]
+            end if
+            return [0, -1]
+        end function
+
+        sub addVisit()
+            curPosKey = m.getCurrentPosKey()
+            if invalid = m.visited[curPosKey]
+                m.visited[curPosKey] = []
+            end if
+            m.visited[curPosKey].push(m.dir)
+            m.path.push({pos: m.currentPos, dir: m.dir})
+        end sub
+
+        function howManyVisited() as integer
+            return m.visited.Keys().count()
+        end function
+
+        function isCurrentDupe() as boolean
+            visited = m.visited[m.getCurrentPosKey()]
+            if invalid <> m.visited[m.getCurrentPosKey()]
+                for each dir in visited
+                    if dir = m.dir
+                        return true
+                    end if
+                end for
+            end if
+            return false
+        end function
+
+        function getCurrentPosKey() as string
+            return m.getPosKey(m.currentPos[0], m.currentPos[1])
+        end function
+
+        function getPosKey(row as integer, col as integer) as string
+            return `${row}_${col}`
+        end function
+
+        function toStr() as string
+            output = ""
+            for row = 0 to m.map.count() - 1
+                for col = 0to m.map[0].count() - 1
+                    if m.map[row][col] = "#"
+                        output += m.map[row][col]
+                    else
+                        if m.currentPos[0] = row and m.currentPos[1] = col
+                            output += m.dir
+                        else if invalid <> m.visited[m.getPosKey(row, col)]
+                            output += "X"
+                        else
+                            output += "."
+                        end if
+                    end if
+                end for
+                output += chr(10)
+            end for
+            return output
+        end function
+
+    end class
+
+
+    function getMap(inputLines as string[]) as MapData
+        start = [-1, -1]
+        startDir = Direction.up
+        row = 0
+        map as string[][] = []
+        for each line in inputLines
+            chars = line.split("")
+            col = 0
+            for each char in chars
+                if char = Direction.Up or char = Direction.Right or char = Direction.Down or char = Direction.Left
+                    start = [row, col]
+                    startDir = char
+                end if
+                col++
+            end for
+            map.push(chars)
+            row++
+        end for
+        data = new MapData(start, startDir, map)
+        return data
+    end function
+
+
+    function isSamePos(pos1 as integer[], pos2 as integer[]) as boolean
+        return pos1[0] = pos2[0] and pos1[1] = pos2[1]
+
+    end function
+
+
+
+    function part1(fileName as string) as integer
+        result = 0
+        input = files.getInputLines(fileName)
+
+        mapData = getMap(input)
+
+        totalMoves = 0
+
+        while not mapData.move()
+            totalMoves++
+            logger.log([mapData, {totalMoves: totalMoves, visited: mapData.howManyVisited()}])
+        end while
+
+
+        result = mapData.howManyVisited()
+
+        return result
+    end function
+
+
+    function part2(fileName as string) as integer
+        result = 0
+        input = files.getInputLines(fileName)
+
+        mapData = getMap(input)
+
+        totalMoves = 0
+
+        logger.log([mapData, {totalMoves: totalMoves, visited: mapData.howManyVisited()}])
+
+        while not mapData.move()
+            totalMoves++
+            i = totalMoves
+            if i < 1
+                continue while
+            end if
+            curPos = mapData.currentPos
+            curDir = mapData.dir
+            delta = mapData.getDelta()
+            obstaclePos = [curPos[0] + delta[0], curPos[1] + delta[1]]
+
+            if mapData.isNextOffMap(obstaclePos) or mapData.map[obstaclePos[0]][obstaclePos[1]] = "#"
+                continue while
+            end if
+
+
+            directionIfObstacle = mapData.iterateDir(curDir)
+            logger.log(["checking", curPos, curDir])
+            ' logger.log([mapData, {totalMoves: totalMoves, visited: mapData.howManyVisited()}])
+
+            foundDupe = false
+            futureData = new day6.MapData(curPos, directionIfObstacle, mapData.map)
+
+            ' logger.log(["Checking future if obstacle at", curItem])
+            j = 0
+            while not foundDupe and not futureData.move(false)
+                logger.log([totalMoves, j])
+                if futureData.isCurrentDupe()
+                    logger.log(["Cycle with obstacle at", obstaclePos])
+                    foundDupe = true
+                    result++
+                end if
+                futureData.addVisit()
+                j++
+            end while
+            futureData = invalid
+            'sleep(500)
+        end while
+
+        return result
+    end function
+end namespace

@@ -5,18 +5,22 @@ namespace logger
         if GetInterface(messageArr, "iftoStr") <> invalid
             return messageArr.toStr()
         else if "roAssociativeArray" = type(messageArr)
-            strings.push("{")
-            i = 0
-            for each item in messageArr
-                strings.push(item + ":")
-                value = getLogString(messageArr[item], true)
-                if i < messageArr.count() - 1
-                    value += ","
-                end if
-                strings.push(value)
-                i++
-            end for
-            strings.push("}")
+            if invalid <> messageArr.toStr
+                strings.push(messageArr.toStr())
+            else
+                strings.push("{")
+                i = 0
+                for each item in messageArr
+                    strings.push(item + ":")
+                    value = getLogString(messageArr[item], true)
+                    if i < messageArr.count() - 1
+                        value += ","
+                    end if
+                    strings.push(value)
+                    i++
+                end for
+                strings.push("}")
+            end if
         else if "roArray" = type(messageArr)
             if deep
                 strings.push("[")

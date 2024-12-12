@@ -1,0 +1,123 @@
+namespace day8
+
+
+
+    interface Data
+        rows as integer
+        cols as integer
+        nodes as roAssociativeArray
+        antennaLocations as roAssociativeArray
+    end interface
+
+
+    function parseInput(input as string[]) as Data
+        nodes = {}
+        nodes.SetModeCaseSensitive()
+        locations = {}
+        rows = input.count()
+        cols = input[0].Len()
+
+        for r = 0 to rows - 1
+            for c = 0 to cols - 1
+                char = input[r].Mid(c, 1)
+                if char <> "." and char <> "#"
+                    if invalid = nodes[char]
+                        nodes[char] = []
+                    end if
+                    nodeArr = [r, c]
+                    nodes[char].push(nodeArr)
+                    locations[getIntArrayKey(nodeArr)] = char
+                end if
+            end for
+        end for
+
+        return {nodes: nodes, rows: rows, cols: cols, antennaLocations: locations}
+    end function
+
+    function getAntiNodes(data as Data) as roAssociativeArray
+        antiNodesByChar = {}
+        antiNodesByChar.SetModeCaseSensitive()
+        charsByAntiNode = {}
+        for each char in data.nodes.Keys()
+            locations as integer[][] = data.nodes[char]
+            antiNodesByChar[char] = []
+            for i = 0 to locations.count() - 1
+                p1 = locations[i]
+                for j = 0 to locations.count() - 1
+                    if i = j
+                        continue for
+                    end if
+                    p2 = locations[j]
+
+                    rOffset = p2[0] - p1[0]
+                    cOffset = p2[1] - p1[1]
+
+                    antiNode1 = getAntiNode(data, p1, rOffset, cOffset)
+                    if antiNode1.isOk
+                        antiNodesByChar[char].push(antiNode1.antiNode)
+                        if charsByAntiNode[antiNode1.key] = invalid
+                            charsByAntiNode[antiNode1.key] = []
+                        end if
+                        charsByAntiNode[antiNode1.key].push(char)
+                    end if
+
+                    antiNode2 = getAntiNode(data, p1, -rOffset, -cOffset)
+                    if antiNode2.isOk
+                        antiNodesByChar[char].push(antiNode2.antiNode)
+                        if charsByAntiNode[antiNode2.key] = invalid
+                            charsByAntiNode[antiNode2.key] = []
+                        end if
+                        charsByAntiNode[antiNode2.key].push(char)
+                    end if
+                end for
+            end for
+        end for
+
+        return {antiNodesByChar: antiNodesByChar, charsByAntiNode: charsByAntiNode}
+    end function
+
+
+    interface AntiNodeResult
+        isOk as boolean
+        antiNode as integer[]
+        key as string
+    end interface
+
+    function getAntiNode(data as Data, p as integer[], rOffset as integer, cOffset as integer) as AntiNodeResult
+        antiNode = [p[0] - rOffset, p[1] - cOffset]
+        isOk = true
+        key = getIntArrayKey(antiNode)
+        if antiNode[0] < 0 or antiNode[0] >= data.rows or antiNode[1] < 0 or antiNode[1] >= data.cols
+            isOk = false
+        end if
+        if isOk and data.antennaLocations[key] <> invalid
+            isOk = false
+        end if
+
+        return {antiNode: antiNode, isOk: isOk, key: key}
+    end function
+
+    function getIntArrayKey(arr as integer[]) as string
+        key = `${arr[0]},${arr[1]}`
+        return key
+    end function
+
+
+
+    function part1(fileName as string) as integer
+        result = 0
+
+        input = files.getInputLines(fileName)
+        data = parseInput(input)
+
+        antiNodes = getAntiNodes(data)
+        logger.log([antiNodes], true)
+
+        for each char in antiNodes.antiNodesByChar.keys()
+            result += antiNodes.antiNodesByChar[char].count()
+        end for
+
+        return result
+    end function
+
+end namespace

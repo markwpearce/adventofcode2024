@@ -1,0 +1,146 @@
+namespace day7
+
+
+    interface DataLine
+        answer as longinteger
+        nums as integer[]
+    end interface
+
+
+    function parseLine(line as string) as DataLine
+        parts as string[] = line.Split(":")
+        answer = parts[0].toInt()
+        if answer < 0
+            logger.error(["Parse error", line, "answer=", answer])
+        end if
+        numStrs as string[] = parts[1].split(" ")
+        nums as integer[] = []
+        for each numStr in numStrs
+            if numStr.Len() > 0
+                nums.push(numStr.ToInt() * 1&)
+            end if
+        end for
+        datum = {answer: answer, nums: nums}
+        ' logger.log([datum])
+        return datum
+    end function
+
+
+    interface TestEntry
+        value as longinteger
+        ops as string
+    end interface
+
+    function testLine(datum as DataLine, allowConcat = false) as TestEntry
+        possibles as TestEntry[] = []
+        possibles.push({value: datum.nums[0], ops: ""})
+        i = 1
+        while i < datum.nums.count()
+            nextNum = datum.nums[i]
+            nextPossibles = []
+            for each p in possibles
+                ' plus
+                nextPlus = {value: p.value + nextNum, ops: p.ops + "+"}
+                if nextPlus.value > 0 and nextPlus.value <= datum.answer
+                    nextPossibles.Push(nextPlus)
+                end if
+                ' times
+                nextTimes = {value: p.value * nextNum, ops: p.ops + "*"}
+                if nextTimes.value > 0 and nextTimes.value <= datum.answer
+                    nextPossibles.Push(nextTimes)
+                end if
+
+                if allowConcat
+                    'concat
+                    boost = 1
+                    if nextNum < 10
+                        boost = 10
+                    else if nextNum < 100
+                        boost = 100
+                    else if nextNum < 1000
+                        boost = 1000
+                    else if nextNum < 10000
+                        boost = 10000
+                    end if
+
+                    nextConcatValue = p.value * boost + nextNum
+                    nextConcat = {value: nextConcatValue, ops: p.ops + "|"}
+                    if nextConcat.value > 0 and nextConcat.value <= datum.answer
+                        nextPossibles.Push(nextConcat)
+                    end if
+                end if
+            end for
+            possibles = nextPossibles
+            i++
+        end while
+        if possibles.Count() > 0
+            for each p in possibles
+                if p.value = datum.answer
+                    return p
+                end if
+            end for
+        end if
+        logger.log(["Not possible", datum.answer, possibles.count()])
+        return invalid
+    end function
+
+
+
+    function part1(fileName as string) as longinteger
+        input = files.getInputLines(fileName)
+
+        data as DataLine[] = []
+        for each line in input
+            data.push(parseLine(line))
+        end for
+
+        result = 0&
+        i = 0
+        for each datum in data
+            worked = testLine(datum)
+            if invalid <> worked
+                prevResult = result
+                nextResult = prevResult + datum.answer
+                logger.log([datum.answer, worked])
+                if nextResult < 0
+                    logger.error(["Overflow", i, prevResult, datum.answer, nextResult])
+                    result = datum.answer
+                else
+                    result = nextResult
+                end if
+            end if
+            i++
+        end for
+        return result
+    end function
+
+
+    function part2(fileName as string) as longinteger
+        input = files.getInputLines(fileName)
+
+        data as DataLine[] = []
+        for each line in input
+            data.push(parseLine(line))
+        end for
+
+        result = 0&
+        i = 0
+        for each datum in data
+            worked = testLine(datum, true)
+            if invalid <> worked
+                prevResult = result
+                nextResult = prevResult + datum.answer
+                logger.log([datum.answer, worked])
+                if nextResult < 0
+                    logger.error(["Overflow", i, prevResult, datum.answer, nextResult])
+                    result = datum.answer
+                else
+                    result = nextResult
+                end if
+            end if
+            i++
+        end for
+        return result
+    end function
+
+end namespace

@@ -257,7 +257,7 @@ namespace day6
                 futureData.addVisit()
                 j++
             end while
-            futureData = invalid
+            ' futureData = invalid
             'sleep(500)
         end while
 
